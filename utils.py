@@ -26,32 +26,6 @@ def derivative(func, delta=0.0001):
     return der
 
 
-# JB fitness function
-def fitness(indiv):
-    return evaluate(phenotype(indiv), len(indiv))
-
-def phenotype(indiv):
-    fen = [i+1 for i in range(len(indiv)) if indiv[i] == 1]
-    return fen
-
-
-def evaluate(indiv, comp):
-    alfa = 1.0
-    beta = 1.1
-    return alfa * len(indiv) - beta * viola(indiv,comp)
-
-def viola(indiv,comp):
-    # Count violations
-    v = 0
-    for elem in indiv:
-        limite = min(elem-1,comp-elem)
-        vi = 0
-        for j in range(1,limite+1):
-            if ((elem - j) in indiv) and ((elem+j) in indiv):
-                vi += 1
-        v += vi
-    return v
-
 # ---------------------------- ALGORITHM -------------------------------
 def two_points_cross(indiv_1, indiv_2,prob_cross):
     value = random.random()
@@ -105,6 +79,32 @@ def display_data(data):
     plt.plot(x,data, 'r')
     plt.show()  
     
+
+def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+    
+    ax1.grid(True)
+    ax1.axhline(c='black')
+    ax1.axvline(c='black')
+    ax1.plot(avg_fitness1, 'b', label='Avg Fitness')
+    ax1.plot(best1, 'r', label='Best')
+    ax1.set_ylim([-50, max(best1) + 10])
+    ax1.set_xlim([0, len(best1)])
+    ax1.set_title(title1)
+    ax1.legend()
+
+    ax2.grid(True)
+    ax2.axhline(c='black')
+    ax2.axvline(c='black')
+    ax2.plot(avg_fitness2, 'b', label='Avg Fitness')
+    ax2.plot(best2, 'r', label='Best')
+    ax2.set_ylim([-50, max(best2) + 10])
+    ax2.set_xlim([0, len(best2)])
+    ax2.set_title(title2)
+    ax2.legend()
+    
+    plt.show()
+
 
 # ---------------------------- SAVE DATA -----------------------------
 def save_data(data, header=[], extra_name='', path='results'):
