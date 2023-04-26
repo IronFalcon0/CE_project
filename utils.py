@@ -26,7 +26,9 @@ def derivative(func, delta=0.0001):
     return der
 
 
-# ---------------------------- ALGORITHM -------------------------------
+
+
+# ---------------------------- VARIATION OPERATORS -----------------------
 def two_points_cross(indiv_1, indiv_2,prob_cross):
     value = random.random()
     if value < prob_cross:
@@ -40,6 +42,25 @@ def two_points_cross(indiv_1, indiv_2,prob_cross):
         return ((f1,0),(f2,0))
     else:
         return (indiv_1,indiv_2)
+    
+def uniform_cross(indiv_1, indiv_2, prob_cross):
+    value = random.random()
+    
+    if value < prob_cross:
+        cromo_1 = indiv_1[0]
+        cromo_2 = indiv_2[0]
+        f1 = []
+        f2 = []
+        for i in range(0, len(cromo_1)):
+            if random() < 0.5:
+                f1.append(cromo_1[i])
+                f2.append(cromo_2[i])
+            else:
+                f1.append(cromo_2[i])
+                f2.append(cromo_1[i])
+        return ((f1,0),(f2,0))
+    else:
+        return (indiv1,indiv2)
 
 # ---------------------------- VISUALIZATION -----------------------------
 def display_function(f, x_min, x_max, delta=0.1):

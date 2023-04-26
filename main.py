@@ -21,7 +21,18 @@ def main():
     title_rep = 'Repair method'
     plot_compare_graphs(avg_pen, best_pen, avg_rep, best_rep, title_pen, title_rep)
 
+
+def knapsack_test():
+    generations = 30
+    pop_size = 100
+    cromo_size = 30
+    prob_muta = 0.01
+    prob_cross = 0.5
+    tour_size = 3
+    elite_percent = 0.02
+    runs = 1
     
+    best_indiv, best_1, average_1 = sea_
     
 
 def jb_numbers_test(mode = 'penalize'):
@@ -38,6 +49,7 @@ def jb_numbers_test(mode = 'penalize'):
     jb_numbers = JB_numbers(generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent)
     absolute_data, avg_data = jb_numbers.run(mode)
     data = [[i+1, a] for i, a in enumerate(avg_data)]
+
 
     save_data(data, header=["ID", "Fitness"], extra_name='jb_numbers' + '_' + mode)
 
