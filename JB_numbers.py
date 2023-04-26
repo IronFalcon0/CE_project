@@ -11,14 +11,13 @@ class JB_numbers():
         self.prob_muta = prob_muta
         self.prob_cross = prob_cross
         self.tour_size = tour_size
-        self.elite_percent = elite_percent
+        self.elite = elite_percent
         self.runs = runs
 
         # default functions/values
         self.tour_seletion = self.tour_sel(tour_size)
         self.crossover = crossover
         self.mutation = self.muta_bin
-        self.sel_survivors = self.sel_survivors_elite(elite_percent)
         
 
     # Modes: penalize, repair
@@ -33,7 +32,7 @@ class JB_numbers():
         runs = self.runs
         sel_parents = self.tour_seletion
         mutation = self.mutation
-        sel_survivors = self.sel_survivors
+        #sel_survivors = self.sel_survivors
         recombination = self.crossover
 
         if mode == 'penalize':
@@ -46,9 +45,11 @@ class JB_numbers():
 
 
 
-        total_best = []
-        best_fit = []
+        total_best_indiv = []
+        total_avg_indiv = []
         for _ in range(runs):
+            print("Run: ", _)
+
             # inicialize population: indiv = (cromo,fit)
             populacao = self.gera_pop(pop_size, cromo_size)
             
@@ -67,34 +68,28 @@ class JB_numbers():
                     indiv_2 = mate_pool[i+1]
                     filhos = recombination(indiv_1,indiv_2, prob_cross)
                     progenitores.extend(filhos) 
-                #print(progenitores)
                 
                 # ------ Mutation
                 descendentes = []
                 for cromo,fit in progenitores:
-                    #print(cromo, fit)
-                    #continue
                     novo_indiv = mutation(cromo, prob_muta)
 
                     descendentes.append((novo_indiv,fitness_func(novo_indiv)))
 
                 # New population
-                populacao = sel_survivors(populacao,descendentes)
-                # Evaluate the new population
-                populacao = [(indiv[0], fitness_func(indiv[0])) for indiv in populacao]
+                populacao = self.elitism(populacao, descendentes)
+
                 best_indiv.append(self.best_pop(populacao)[1])
+
                 avg_indiv.append(np.mean([indiv[1] for indiv in populacao]))
-                print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
+                #print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
 
                 
+            total_best_indiv.append(best_indiv)
+            total_avg_indiv.append(avg_indiv)
 
-            total_best.append(best_indiv)
-            best_fit.append(max(best_indiv))
 
-        absolute_best = [max(idx) for idx in zip(*total_best)]
-        avg_best = [float(sum(l))/len(l) for l in zip(*total_best)]
-
-        return best_indiv, avg_indiv
+        return total_best_indiv, total_avg_indiv
     
     # Initialize population
     def gera_pop(self, size_pop,size_cromo):
@@ -130,29 +125,28 @@ class JB_numbers():
     # Variation operators: Binary mutation	    
     def muta_bin(self, indiv,prob_muta):
         # Mutation by gene
-        cromo = indiv[:]
+
         for i in range(len(indiv)):
-            cromo[i] = self.muta_bin_gene(cromo[i],prob_muta)
+            value = random.uniform(0, 1)
+            if value < prob_muta:
+                indiv[i] = 1 - indiv[i]
 
         return indiv
-
-    def muta_bin_gene(self, gene, prob_muta):
-        g = gene
-        value = random.random()
-        if value < prob_muta:
-            g ^= 1
-        return g
     
     # Survivals Selection: elitism
-    def sel_survivors_elite(self, elite):
-        def elitism(parents,offspring):
-            size = len(parents)
-            comp_elite = int(size* elite)
-            offspring.sort(key=itemgetter(1), reverse=True)
-            parents.sort(key=itemgetter(1), reverse=True)
-            new_population = parents[:comp_elite] + offspring[:size - comp_elite]
-            return new_population
-        return elitism
+    def elitism(self, parents, offspring):
+        size = len(parents)
+        comp_elite = int(size* self.elite)
+
+        offspring.sort(key=itemgetter(1), reverse=True)
+
+        
+        parents.sort(key=itemgetter(1), reverse=True)
+        new_population = parents[:comp_elite] + offspring[:size - comp_elite]
+        new_population.sort(key=itemgetter(1), reverse=True)
+
+        return new_population
+
     
 
 
