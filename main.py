@@ -23,16 +23,26 @@ def main():
 
 
 def knapsack_test():
-    generations = 30
+    generations = 150
     pop_size = 100
     cromo_size = 30
     prob_muta = 0.01
-    prob_cross = 0.5
+    prob_cross = 0.9
     tour_size = 3
     elite_percent = 0.02
-    runs = 1
+    runs = 10
+    max_value = 100
+    max_weight = 100
     
-    best_indiv, best_1, average_1 = sea_
+    knapsack = Knapsack(generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, max_value, max_weight)
+    absolute_data, avf_data = knapsack.run(mode)
+    data = [[i+1, a] for i, a in enumerate(avg_data)]
+    
+    save_data(data, header=["ID", "Fitness"], extra_name='knapsack' + '_' + mode)
+    
+    return avg_data, absolute_data
+    
+    
     
 
 def jb_numbers_test(mode = 'penalize'):

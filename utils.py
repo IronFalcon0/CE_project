@@ -26,6 +26,10 @@ def derivative(func, delta=0.0001):
     return der
 
 
+def best_pop(self, populacao):
+    populacao.sort(key=itemgetter(1),reverse=True)
+    return populacao[0]
+
 
 
 # ---------------------------- VARIATION OPERATORS -----------------------
@@ -61,6 +65,36 @@ def uniform_cross(indiv_1, indiv_2, prob_cross):
         return ((f1,0),(f2,0))
     else:
         return (indiv1,indiv2)
+    
+    
+       
+# Variation operators: Binary mutation	    
+def muta_bin(self, indiv,prob_muta):
+    # Mutation by gene
+    cromo = indiv[:]
+    for i in range(len(indiv)):
+        cromo[i] = self.muta_bin_gene(cromo[i],prob_muta)
+
+    return indiv
+
+def muta_bin_gene(self, gene, prob_muta):
+    g = gene
+    value = random.random()
+    if value < prob_muta:
+        g ^= 1
+    return g
+
+# ---------------------------- PARENTS SELECTION -----------------------------
+
+def sel_survivors_elite(self, elite):
+    def elitism(parents,offspring):
+        size = len(parents)
+        comp_elite = int(size* elite)
+        offspring.sort(key=itemgetter(1), reverse=True)
+        parents.sort(key=itemgetter(1), reverse=True)
+        new_population = parents[:comp_elite] + offspring[:size - comp_elite]
+        return new_population
+    return elitism
 
 # ---------------------------- VISUALIZATION -----------------------------
 def display_function(f, x_min, x_max, delta=0.1):
