@@ -14,29 +14,31 @@ def main():
     #data = knapsack.run()
     
     
-    jb_numbers_test()
+    #jb_numbers_test()
 
+    knapsack_test()
 
 
 def knapsack_test(plot = True):
-    generations = 150
+    generations = 200
     pop_size = 100
-    cromo_size = 30
+    number_itens = 50
     prob_muta = 0.01
-    prob_cross = 0.9
-    tour_size = 3
+    prob_cross = 0.7
+    tour_size = 5
     elite_percent = 0.02
-    runs = 10
+    runs = 3
     max_value = 100
-    max_weight = 100
     
-    knapsack = Knapsack(generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, max_value, max_weight)
+    
+    knapsack = Knapsack(generations, pop_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, max_value, number_itens)
     
     t1 = time.time()
 
     # mode: penalize
     mode = 'penalize'
     best_data_pen, avg_data_pen = knapsack.run(mode)
+    
     data = prepare_data(best_data_pen, avg_data_pen)
 
     save_data(data, header=headers, extra_name='knapsack' + '_' + mode)

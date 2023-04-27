@@ -1,44 +1,54 @@
 import random
 import numpy as np
+import math
+import copy
 
 from operator import itemgetter
 
 
 class Knapsack():
-    def __init__(self, generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, crossover, mutation, sel_survivors, elite_percent, fitness, max_value, max_weight):
+    def __init__(self, generations, pop_size, prob_muta, prob_cross, runs, tour_size, crossover, elite_percent, max_value, number_itens):
         self.generations = generations
         self.pop_size = pop_size
-        self.cromo_size = cromo_size
         self.prob_muta = prob_muta
         self.prob_cross = prob_cross
         self.tour_size = tour_size
-        self.elite_percent = elite_percent
+        self.elite = elite_percent
         self.max_value = max_value
-        self.max_weight = max_weight
         self.runs = runs
 
         # default functions/values
         self.tour_seletion = self.tour_sel(tour_size)
         self.crossover = crossover
-        self.mutation = self.mutation
-        self.sel_survivors = self.sel_survivors
-        self.fitness = fitness
+
+        self.number_itens = number_itens
+        self.items = self.generate_uncor(number_itens, max_value)
+        print(self.items)
+        #exit(0)
+
 
     def run(self, mode='penalize'):         
         generations = self.generations
         pop_size = self.pop_size
-        cromo_size = self.cromo_size
         prob_muta = self.prob_muta
         prob_cross = self.prob_cross
-        max_weight = self.max_weight
         max_value = self.max_value
 
         runs = self.runs
         sel_parents = self.tour_seletion
-        mutation = self.mutation
-        sel_survivors = self.sel_survivors
+        mutation = self.muta_bin
         recombination = self.crossover
 
+
+        if mode == 'penalize':
+            fitness_func = self.evaluate_linear
+        elif mode == 'repair':
+            fitness_func = self.fitness_repair_value_to_profit
+        else:
+            print("Invalid mode")
+            return
+
+        """
         if mode == 'penalize_log':
             fitness_func = self.evaluate_log
         elif mode == 'penalize_linear':
@@ -54,15 +64,18 @@ class Knapsack():
         else:
             print("Invalid mode")
             return
+        """
         
-        total_best = []
-        best_fit = []
+        total_best_indiv = []
+        total_avg_indiv = []
         for _ in range(runs):
+            print("Run: ", _)
+
             # inicialize population: indiv = (cromo,fit)
-            populacao = self.generate_uncor(pop_size, max_value)
+            populacao = self.gera_pop(pop_size, self.number_itens)
             
             # evaluate population
-            populacao = [(indiv[0], fitness_func(indiv[0])) for indiv in populacao]
+            populacao = [(indiv[0], fitness_func(self.phenotype(indiv[0]))) for indiv in populacao]
             best_indiv = []
             avg_indiv = []
             for ng in range(generations):
@@ -85,50 +98,44 @@ class Knapsack():
                     #continue
                     novo_indiv = mutation(cromo, prob_muta)
 
-                    descendentes.append((novo_indiv,fitness_func(novo_indiv)))
+                    descendentes.append((novo_indiv,fitness_func(self.phenotype(novo_indiv))))
 
                 # New population
-                populacao = sel_survivors(populacao,descendentes)
+                populacao = self.elitism(populacao,descendentes)
                 
                 # Evaluate the new population
-                populacao = [(indiv[0], fitness_func(indiv[0])) for indiv in populacao]
+                populacao = [(indiv[0], fitness_func(self.phenotype(indiv[0]))) for indiv in populacao]
                 # Get the best individual from the generation
                 best_indiv.append(self.best_pop(populacao)[1])
                 avg_indiv.append(np.mean([indiv[1] for indiv in populacao]))
-                print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
+                #print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
 
                 
-            # Get the best individual from the run
-            total_best.append(best_indiv)
-            best_fit.append(max(best_indiv))
+            total_best_indiv.append(best_indiv)
+            total_avg_indiv.append(avg_indiv)
 
-        absolute_best = [max(idx) for idx in zip(*total_best)]
-        avg_best = [float(sum(l))/len(l) for l in zip(*total_best)]
-
-        return best_indiv, avg_indiv
+        return total_best_indiv, total_avg_indiv
         
 
-    def merito(self, problem):
-        def fitness(indiv):
-            # Returns the fitness of an individual
-            
-            quali = self.evaluate_zero(self.phenotype(indiv))
-            return quali
-        return fitness
+    def fitness(self, indiv):
+        # Returns the fitness of an individual
+        
+        quali = self.evaluate_zero(self.phenotype(indiv))
+        return quali
     
     def phenotype(self, indiv):
         # Returns the phenotype of an individual wuth the format [[id, weight, value], ...]
         # indiv has the format [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
-        pheno = [[id, problem['weights'][id], problem['values'][id]] for id in range(len(indiv)) if indiv[id] == 1]
+        pheno = [[id, self.items['weights'][id], self.items['values'][id]] for id in range(len(indiv)) if indiv[id] == 1]
         return pheno
     
-    def evaluate_zero(self, feno):
+    def evaluate_zero(self, pheno):
         # Returns the total value of the items in the knapsack
-        total_weight = sum([weight for id,weight,value in feno])
-        capacity = problem['capacity']
+        total_weight = sum([weight for id,weight,value in pheno])
+        capacity = self.items['capacity']
         if total_weight > capacity:
             return 0
-        return sum([value for id,weight,value in feno])
+        return sum([value for id,weight,value in pheno])
         
     
     # ---------------------------- DATA SET -----------------------------
@@ -136,14 +143,14 @@ class Knapsack():
     # este é melhor
     def generate_uncor(self, size_items, max_value):
         # Generates a random data set
-        weights = [random.uniform(1, max_value) for i in range(size_items)]
-        values = [random.uniform(1, max_value) for i in range(size_items)]
+        weights = [int(random.uniform(1, max_value)) for i in range(size_items)]
+        values = [int(random.uniform(1, max_value)) for i in range(size_items)]
         capacity = int(0.5 * sum(weights))
         return {'weights': weights, 'values': values, 'capacity': capacity}
     
     def generate_weak_cor(self, size_items, max_value, amplitude):
         # Generates a weakly correlated data set
-        weight = [random.uniform(1, max_value) for i in range(size_items)]
+        weights = [random.uniform(1, max_value) for i in range(size_items)]
         values = []
         for i in range(size_items):
             value = weights[i] + random.uniform(-amplitude, amplitude)
@@ -155,7 +162,7 @@ class Knapsack():
     
     def generate_strong_cor(self, size_items, max_value, amplitude):
         # Generates a strongly correlated data set
-        weight = [random.uniform(1, max_value) for i in range(size_items)]
+        weights = [random.uniform(1, max_value) for i in range(size_items)]
         values = [weights[i] + amplitude for i in range(size_items)]
         capacity = int(0.5 * sum(weights))
         return {'weights': weights, 'values': values, 'capacity': capacity}
@@ -169,21 +176,21 @@ class Knapsack():
     
     # ---------------------------- DECODERS -----------------------------
     
-    def list_items(self, problem):
+    def list_items(self):
         # Returns a list of items with the following format: [id, weight, value, ratio]
-        weight_value_list = list(zip(problem['weights'], problem['values']))
+        weight_value_list = list(zip(self.items['weights'], self.items['values']))
         l_items = [[i, w, v, v/w] for i, (w, v) in enumerate(weight_value_list)]
         return l_items
     
-    def decode_int(self, indiv, problem):
+    def decode_int(self, indiv):
         """
         - Defines the intems in the KP based on a list of integers (indiv)
         - problem is a dictionary with the following keys: weights, values, capacity
         """
         
         # build list of items
-        capacity = problem['capacity']
-        l_items = list_items(problem)
+        capacity = self.items['capacity']
+        l_items = self.list_items()
         sum_weight = 0
         res = []
         for i in range(len(indiv)):
@@ -214,37 +221,73 @@ class Knapsack():
         pool.sort(key=itemgetter(1), reverse=True)
         return pool[0]
     
+
+    # Variation operators: Binary mutation	    
+    def muta_bin(self, indiv,prob_muta):
+        # Mutation by gene
+
+        for i in range(len(indiv)):
+            value = random.uniform(0, 1)
+            if value < prob_muta:
+                indiv[i] = 1 - indiv[i]
+
+        return indiv
+    
+    # Survivals Selection: elitism
+    def elitism(self, parents, offspring):
+        size = len(parents)
+        comp_elite = int(size* self.elite)
+
+        offspring.sort(key=itemgetter(1), reverse=True)
+
+        
+        parents.sort(key=itemgetter(1), reverse=True)
+        new_population = parents[:comp_elite] + offspring[:size - comp_elite]
+        new_population.sort(key=itemgetter(1), reverse=True)
+
+        return new_population
+    
+
+    # Initialize population
+    def gera_pop(self, size_pop,size_cromo):
+        return [(self.gera_indiv(size_cromo),0) for i in range(size_pop)]
+    
+    def gera_indiv(self, size_cromo):
+        # random initialization
+        indiv = [random.randint(0,1) for i in range(size_cromo)]
+        return indiv
+    
     # ============================ FITNESS ===============================
     
     # ---------------------------- PENALIZE -----------------------------
     
-    def evaluate_log(self, feno):
+    def evaluate_log(self, pheno):
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
-        total_weight = sum([weight for id,weight,value in feno])
-        quality = sum([value for id,weight,value in feno])
-        capacity = problem['capacity']
+        total_weight = sum([weight for id,weight,value in pheno])
+        quality = sum([value for id,weight,value in pheno])
+        capacity = self.items['capacity']
         if total_weight > capacity:
-            pho = max([v/w for i,w,v in feno])
+            pho = max([v/w for i,w,v in pheno])
             quality -= math.log((total_weight - capacity) * pho + 1,2)
         return quality
     
-    def evaluate_linear(self, feno):
+    def evaluate_linear(self, pheno):
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
-        total_weight = sum([weight for id,weight,value in feno])
-        quality = sum([value for id,weight,value in feno])
-        capacity = problem['capacity']
+        total_weight = sum([weight for id,weight,value in pheno])
+        quality = sum([value for id,weight,value in pheno])
+        capacity = self.items['capacity']
         if total_weight > capacity:
-            pho = max([v/w for i,w,v in feno])
+            pho = max([v/w for i,w,v in pheno])
             quality -= (total_weight - capacity) * pho
         return quality
     
-    def evaluate_quadratic(self, feno):
+    def evaluate_quadratic(self, pheno):
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
-        total_weight = sum([weight for id,weight,value in feno])
-        quality = sum([value for id,weight,value in feno])
-        capacity = problem['capacity']
+        total_weight = sum([weight for id,weight,value in pheno])
+        quality = sum([value for id,weight,value in pheno])
+        capacity = self.items['capacity']
         if total_weight > capacity:
-            pho = max([v/w for i,w,v in feno])
+            pho = max([v/w for i,w,v in pheno])
             quality -= (total_weight - capacity) ** 2 * pho
         return quality
     
@@ -270,12 +313,12 @@ class Knapsack():
         # Returns a valid individual by removing the least valued item from the knapsack
         # indiv = (cromo, fitness)
         indiv = copy.deepcopy(cromo)
-        capacity = problem['capacity']
-        pheno = phenotype(indiv)
+        capacity = self.items['capacity']
+        pheno = self.phenotype(indiv)
         # sort by value
-        pheno.sort(key=operator.itemgetter(2))
+        pheno.sort(key=itemgetter(2))
         
-        weight_indiv = get_weight(indiv, problem)
+        weight_indiv = get_weight(indiv, self.items)
         for index, weight, value in pheno:
             if weight_indiv <= capacity:
                 break
@@ -286,11 +329,11 @@ class Knapsack():
     def repair_weight(self, cromo):
         # Returns a valid individual by removing the heaviest item from the knapsack
         indiv = copy.deepcopy(cromo)
-        capacity = problem['capacity']
-        pheno = phenotype(indiv)
-        pheno.sort(key=operator.itemgetter(1))
+        capacity = self.items['capacity']
+        pheno = self.phenotype(indiv)
+        pheno.sort(key=itemgetter(1))
         
-        weight_indiv = get_weight(indiv, problem)
+        weight_indiv = get_weight(indiv)
         for index, weight, value in pheno:
             if weight_indiv <= capacity:
                 break
@@ -301,12 +344,12 @@ class Knapsack():
     def repair_value_to_profit(self, cromo):
         # Returns a valid individual by removing the least ratio value/weight item from the knapsack
         indiv = copy.deepcopy(cromo)
-        capacity = problem['capacity']
-        pheno = phenotype(indiv)
+        capacity = self.items['capacity']
+        pheno = self.phenotype(indiv)
         pheno = [[i, w, v, float(v/w)] for i, w, v in pheno]
-        pheno.sort(key= operator.itemgetter(3))
+        pheno.sort(key= itemgetter(3))
         
-        weight_indiv = get_weight(indiv, problem)
+        weight_indiv = 100 # get_weight(indiv, problem)
         for index, weight, value, ratio in pheno:
             if weight_indiv <= capacity:
                 break

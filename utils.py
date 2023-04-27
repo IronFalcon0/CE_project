@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import csv
 import random
 
+from operator import itemgetter
+
 # -------------------------------- UTILS --------------------------------
 def frange(n1,n2=None,n3=1.0):
     """
@@ -64,7 +66,7 @@ def uniform_cross(indiv_1, indiv_2, prob_cross):
                 f2.append(cromo_1[i])
         return ((f1,0),(f2,0))
     else:
-        return (indiv1,indiv2)
+        return (indiv_1,indiv_2)
     
     
        
