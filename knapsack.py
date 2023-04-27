@@ -1,3 +1,8 @@
+import random
+import numpy as np
+
+from operator import itemgetter
+
 
 class Knapsack():
     def __init__(self, generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, crossover, mutation, sel_survivors, elite_percent, fitness, max_value, max_weight):
@@ -103,21 +108,21 @@ class Knapsack():
         return best_indiv, avg_indiv
         
 
-    def merito(problem):
+    def merito(self, problem):
         def fitness(indiv):
             # Returns the fitness of an individual
             
-            quali = evaluate_zero(phenotype(indiv))
+            quali = self.evaluate_zero(self.phenotype(indiv))
             return quali
         return fitness
     
-    def phenotype(indiv):
+    def phenotype(self, indiv):
         # Returns the phenotype of an individual wuth the format [[id, weight, value], ...]
         # indiv has the format [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
         pheno = [[id, problem['weights'][id], problem['values'][id]] for id in range(len(indiv)) if indiv[id] == 1]
         return pheno
     
-    def evaluate_zero(feno):
+    def evaluate_zero(self, feno):
         # Returns the total value of the items in the knapsack
         total_weight = sum([weight for id,weight,value in feno])
         capacity = problem['capacity']
@@ -129,14 +134,14 @@ class Knapsack():
     # ---------------------------- DATA SET -----------------------------
     
     # este é melhor
-    def generate_uncor(size_items, max_value):
+    def generate_uncor(self, size_items, max_value):
         # Generates a random data set
         weights = [random.uniform(1, max_value) for i in range(size_items)]
         values = [random.uniform(1, max_value) for i in range(size_items)]
         capacity = int(0.5 * sum(weights))
         return {'weights': weights, 'values': values, 'capacity': capacity}
     
-    def generate_weak_cor(size_items, max_value, amplitude):
+    def generate_weak_cor(self, size_items, max_value, amplitude):
         # Generates a weakly correlated data set
         weight = [random.uniform(1, max_value) for i in range(size_items)]
         values = []
@@ -148,7 +153,7 @@ class Knapsack():
         capacity = int(0.5 * sum(weights))
         return {'weights': weights, 'values': values, 'capacity': capacity}
     
-    def generate_strong_cor(size_items, max_value, amplitude):
+    def generate_strong_cor(self, size_items, max_value, amplitude):
         # Generates a strongly correlated data set
         weight = [random.uniform(1, max_value) for i in range(size_items)]
         values = [weights[i] + amplitude for i in range(size_items)]
@@ -164,13 +169,13 @@ class Knapsack():
     
     # ---------------------------- DECODERS -----------------------------
     
-    def list_items(problem):
+    def list_items(self, problem):
         # Returns a list of items with the following format: [id, weight, value, ratio]
         weight_value_list = list(zip(problem['weights'], problem['values']))
         l_items = [[i, w, v, v/w] for i, (w, v) in enumerate(weight_value_list)]
         return l_items
     
-    def decode_int(indiv, problem):
+    def decode_int(self, indiv, problem):
         """
         - Defines the intems in the KP based on a list of integers (indiv)
         - problem is a dictionary with the following keys: weights, values, capacity
@@ -192,11 +197,28 @@ class Knapsack():
                 return res
         return res
     
+    
+    def tour_sel(self, t_size):
+        def tournament(pop):
+            size_pop= len(pop)
+            mate_pool = []
+            for i in range(size_pop):
+                winner = self.one_tour(pop,t_size)
+                mate_pool.append(winner)
+            return mate_pool
+        return tournament
+    
+    def one_tour(self, population,size):
+        """Maximization Problem. Deterministic"""
+        pool = random.sample(population, size)
+        pool.sort(key=itemgetter(1), reverse=True)
+        return pool[0]
+    
     # ============================ FITNESS ===============================
     
     # ---------------------------- PENALIZE -----------------------------
     
-    def evaluate_log(feno):
+    def evaluate_log(self, feno):
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
         total_weight = sum([weight for id,weight,value in feno])
         quality = sum([value for id,weight,value in feno])
@@ -206,7 +228,7 @@ class Knapsack():
             quality -= math.log((total_weight - capacity) * pho + 1,2)
         return quality
     
-    def evaluate_linear(feno):
+    def evaluate_linear(self, feno):
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
         total_weight = sum([weight for id,weight,value in feno])
         quality = sum([value for id,weight,value in feno])
@@ -216,7 +238,7 @@ class Knapsack():
             quality -= (total_weight - capacity) * pho
         return quality
     
-    def evaluate_quadratic(feno):
+    def evaluate_quadratic(self, feno):
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
         total_weight = sum([weight for id,weight,value in feno])
         quality = sum([value for id,weight,value in feno])
@@ -244,7 +266,7 @@ class Knapsack():
         return self.evaluate_zero(self.phenotype(indiv))
     
     
-    def repair_value(cromo):
+    def repair_value(self, cromo):
         # Returns a valid individual by removing the least valued item from the knapsack
         # indiv = (cromo, fitness)
         indiv = copy.deepcopy(cromo)
@@ -261,7 +283,7 @@ class Knapsack():
             weight_indiv -= weight
         return indiv
     
-    def repair_weight(cromo):
+    def repair_weight(self, cromo):
         # Returns a valid individual by removing the heaviest item from the knapsack
         indiv = copy.deepcopy(cromo)
         capacity = problem['capacity']
@@ -276,7 +298,7 @@ class Knapsack():
             weight_indiv -= weight
         return indiv
     
-    def repair_value_to_profit(cromo):
+    def repair_value_to_profit(self, cromo):
         # Returns a valid individual by removing the least ratio value/weight item from the knapsack
         indiv = copy.deepcopy(cromo)
         capacity = problem['capacity']
