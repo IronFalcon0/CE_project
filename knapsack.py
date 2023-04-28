@@ -75,7 +75,7 @@ class Knapsack():
             populacao = self.gera_pop(pop_size, self.number_itens)
             
             # evaluate population
-            populacao = [(indiv[0], fitness_func(self.phenotype(indiv[0]))) for indiv in populacao]
+            populacao = [(indiv[0], fitness_func(indiv[0])) for indiv in populacao]
             best_indiv = []
             avg_indiv = []
             for ng in range(generations):
@@ -98,13 +98,11 @@ class Knapsack():
                     #continue
                     novo_indiv = mutation(cromo, prob_muta)
 
-                    descendentes.append((novo_indiv,fitness_func(self.phenotype(novo_indiv))))
+                    descendentes.append((novo_indiv,fitness_func(novo_indiv)))
 
                 # New population
                 populacao = self.elitism(populacao,descendentes)
                 
-                # Evaluate the new population
-                populacao = [(indiv[0], fitness_func(self.phenotype(indiv[0]))) for indiv in populacao]
                 # Get the best individual from the generation
                 best_indiv.append(self.best_pop(populacao)[1])
                 avg_indiv.append(np.mean([indiv[1] for indiv in populacao]))
@@ -198,7 +196,7 @@ class Knapsack():
             # remove from l_items the item of order j
             id, w, v, r = l_items.pop(j)
             if sum_weight + w <= capacity:
-                sum_weights += w
+                sum_weight += w
                 res.append([id, w, v, r])
             else:
                 return res
@@ -271,7 +269,8 @@ class Knapsack():
             quality -= math.log((total_weight - capacity) * pho + 1,2)
         return quality
     
-    def evaluate_linear(self, pheno):
+    def evaluate_linear(self, indiv):
+        pheno = self.phenotype(indiv)
         # Returns the total value of the items in the knapsack and penalizes the solutions that exceed the capacity
         total_weight = sum([weight for id,weight,value in pheno])
         quality = sum([value for id,weight,value in pheno])
@@ -306,7 +305,7 @@ class Knapsack():
     def fitness_repair_value_to_profit(self, indiv):
         indiv = self.repair_value_to_profit(indiv)
         
-        return self.evaluate_zero(self.phenotype(indiv))
+        return self.evaluate_linear(indiv)
     
     
     def repair_value(self, cromo):

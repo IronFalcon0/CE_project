@@ -23,10 +23,10 @@ def knapsack_test(plot = True):
     generations = 200
     pop_size = 100
     number_itens = 50
-    prob_muta = 0.01
+    prob_muta = 0.05
     prob_cross = 0.7
     tour_size = 5
-    elite_percent = 0.02
+    elite_percent = 0.05
     runs = 3
     max_value = 100
     
