@@ -4,6 +4,7 @@ import math
 import copy
 
 from operator import itemgetter
+import time
 
 
 class Knapsack():
@@ -23,7 +24,7 @@ class Knapsack():
 
         self.number_itens = number_itens
         self.items = self.generate_uncor(number_itens, max_value)
-        print(self.items)
+        #print(self.items)
         #exit(0)
 
 
@@ -68,8 +69,9 @@ class Knapsack():
         
         total_best_indiv = []
         total_avg_indiv = []
+        t1 = time.time()
         for _ in range(runs):
-            print("Run: ", _)
+            print("Run: ", _, ", Time: ", time.time()-t1, "s")
 
             # inicialize population: indiv = (cromo,fit)
             populacao = self.gera_pop(pop_size, self.number_itens)
@@ -277,7 +279,7 @@ class Knapsack():
         capacity = self.items['capacity']
         if total_weight > capacity:
             pho = max([v/w for i,w,v in pheno])
-            quality -= (total_weight - capacity) * pho
+            quality -= (total_weight - capacity) * pho * 20
         return quality
     
     def evaluate_quadratic(self, pheno):

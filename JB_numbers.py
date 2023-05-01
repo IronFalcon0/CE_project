@@ -2,6 +2,7 @@ import numpy as np
 import random
 from operator import itemgetter
 from utils import two_points_cross
+import time
 
 class JB_numbers():
     def __init__(self, generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, crossover, elite_percent):
@@ -47,8 +48,9 @@ class JB_numbers():
 
         total_best_indiv = []
         total_avg_indiv = []
+        t1 = time.time()
         for _ in range(runs):
-            print("Run: ", _)
+            print("Run: ", _, ", Time: ", time.time()-t1, "s")
 
             # inicialize population: indiv = (cromo,fit)
             populacao = self.gera_pop(pop_size, cromo_size)

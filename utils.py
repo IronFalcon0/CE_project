@@ -137,15 +137,20 @@ def display_data(data):
     plt.show()  
     
 
-def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2):
+def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2, name):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
     
+    min_y_1 = min(min(avg_fitness1), min(best1)) - min(min(avg_fitness1), min(best1))*0.05
+    max_y_1 = max(max(avg_fitness1), max(best1)) + max(max(avg_fitness1), max(best1))*0.05
+    min_y_2 = min(min(avg_fitness2), min(best2)) - min(min(avg_fitness2), min(best2))*0.05
+    max_y_2 = max(max(avg_fitness2), max(best2)) + max(max(avg_fitness2), max(best2))*0.05
+
     ax1.grid(True)
     ax1.axhline(c='black')
     ax1.axvline(c='black')
     ax1.plot(avg_fitness1, 'b', label='Avg')
     ax1.plot(best1, 'r', label='Best')
-    ax1.set_ylim([min(avg_fitness1), max(best1) + 10])
+    ax1.set_ylim([min_y_1, max_y_1])
     ax1.set_xlim([0, len(best1)])
     ax1.set_title(title1)
     ax1.legend()
@@ -155,13 +160,19 @@ def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2
     ax2.axvline(c='black')
     ax2.plot(avg_fitness2, 'b', label='Avg')
     ax2.plot(best2, 'r', label='Best')
-    ax2.set_ylim([-(max(best2) - min(avg_fitness2)) // 2, max(best2) + 10])
+    ax2.set_ylim([min_y_2, max_y_2])
     ax2.set_xlim([0, len(best2)])
     ax2.set_title(title2)
     ax2.legend()
     
-    plt.show()
+    #plt.show()
+    if not os.path.exists('plots'):
+        os.mkdir('plots')
 
+    if os.path.exists(os.path.join('plots', name + '.png')):
+        os.remove(os.path.join('plots', name + '.png'))
+        
+    plt.savefig(os.path.join('plots', name + '.png'))
 
 # ---------------------------- SAVE DATA -----------------------------
 def prepare_data(best_data, avg_data):

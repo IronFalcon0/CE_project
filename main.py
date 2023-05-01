@@ -20,15 +20,15 @@ def main():
 
 
 def knapsack_test(plot = True):
-    generations = 200
-    pop_size = 100
-    number_itens = 50
-    prob_muta = 0.05
-    prob_cross = 0.7
+    generations = 500
+    pop_size = 1000
+    number_itens = 500
+    prob_muta = 0.02
+    prob_cross = 0.75
     tour_size = 5
     elite_percent = 0.05
-    runs = 3
-    max_value = 100
+    runs = 30
+    max_value = 50
     
     
     knapsack = Knapsack(generations, pop_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, max_value, number_itens)
@@ -66,16 +66,16 @@ def knapsack_test(plot = True):
     if plot:
         title_pen = 'Penalize method'
         title_rep = 'Repair method'
-        plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep)
+        plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'knapsack')
     
     
     
     
 
 def jb_numbers_test(plot = True):
-    generations = 300
-    pop_size = 500
-    cromo_size = 100
+    generations = 500
+    pop_size = 300
+    cromo_size = 300
     prob_muta = 0.01
     prob_cross = 0.7
     tour_size = 5
@@ -117,7 +117,7 @@ def jb_numbers_test(plot = True):
     if plot:
         title_pen = 'Penalize method'
         title_rep = 'Repair method'
-        plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep)
+        plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'jb_numbers')
 
 
 
