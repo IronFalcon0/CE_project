@@ -14,9 +14,11 @@ def main():
     #data = knapsack.run()
     
     
-    jb_numbers_test()
+    #jb_numbers_test()
 
     #knapsack_test()
+
+    redo_plots()
 
 
 def knapsack_test(plot = True):
@@ -123,6 +125,41 @@ def jb_numbers_test(plot = True):
         title_rep = 'Repair method'
         plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'jb_numbers')
 
+
+
+def redo_plots():
+    # jb_numbers
+    best_data_pen, avg_data_pen = load_data('final_jb_numbers_penalize')
+
+    best_data_rep, avg_data_rep = load_data('final_jb_numbers_repair')
+
+
+    avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
+    best_pen_avg = np.mean(best_data_pen, axis=0).tolist()
+    avg_rep_avg = np.mean(avg_data_rep, axis=0).tolist()
+    best_rep_avg = np.mean(best_data_rep, axis=0).tolist()
+
+
+    title_pen = 'Penalize method'
+    title_rep = 'Repair method'
+    plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'jb_numbers')
+
+    # knapsack
+    
+    best_data_pen, avg_data_pen = load_data('final_knapsack_penalize')
+
+    best_data_rep, avg_data_rep = load_data('final_knapsack_repair')
+
+
+    avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
+    best_pen_avg = np.mean(best_data_pen, axis=0).tolist()
+    avg_rep_avg = np.mean(avg_data_rep, axis=0).tolist()
+    best_rep_avg = np.mean(best_data_rep, axis=0).tolist()
+
+
+    title_pen = 'Penalize method'
+    title_rep = 'Repair method'
+    plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'knapsack')
 
 
 def load_data(filename):

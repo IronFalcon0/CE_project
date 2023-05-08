@@ -153,6 +153,8 @@ def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2
     ax1.set_ylim([min_y_1, max_y_1])
     ax1.set_xlim([0, len(best1)])
     ax1.set_title(title1)
+    ax1.set_xlabel('Generation')
+    ax1.set_ylabel('Fitness')
     ax1.legend()
 
     ax2.grid(True)
@@ -163,6 +165,8 @@ def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2
     ax2.set_ylim([min_y_2, max_y_2])
     ax2.set_xlim([0, len(best2)])
     ax2.set_title(title2)
+    ax2.set_xlabel('Generation')
+    ax2.set_ylabel('Fitness')
     ax2.legend()
     
     #plt.show()
