@@ -14,13 +14,13 @@ def main():
     #data = knapsack.run()
     
     
-    #jb_numbers_test()
+    jb_numbers_test()
 
-    knapsack_test()
+    #knapsack_test()
 
 
 def knapsack_test(plot = True):
-    generations = 500
+    generations = 2000
     pop_size = 1000
     number_itens = 500
     prob_muta = 0.02
@@ -73,8 +73,8 @@ def knapsack_test(plot = True):
     
 
 def jb_numbers_test(plot = True):
-    generations = 500
-    pop_size = 300
+    generations = 2000
+    pop_size = 500
     cromo_size = 300
     prob_muta = 0.01
     prob_cross = 0.7
@@ -88,21 +88,25 @@ def jb_numbers_test(plot = True):
     t1 = time.time()
 
     # mode: penalize
-    mode = 'penalize'
-    best_data_pen, avg_data_pen = jb_numbers.run(mode)
-    data = prepare_data(best_data_pen, avg_data_pen)
+    #mode = 'penalize'
+    #best_data_pen, avg_data_pen = jb_numbers.run(mode)
+    #data = prepare_data(best_data_pen, avg_data_pen)
 
-    save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
+    #save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
+
+    best_data_pen, avg_data_pen = load_data('final_jb_numbers_penalize')
+
 
     t2 = time.time()
 
     # mode: repair
     mode = 'repair'
-    best_data_rep, avg_data_rep = jb_numbers.run(mode)
-    data = prepare_data(best_data_rep, avg_data_rep)
+    #best_data_rep, avg_data_rep = jb_numbers.run(mode)
+    #data = prepare_data(best_data_rep, avg_data_rep)
 
-    save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
-    
+    #save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
+    best_data_rep, avg_data_rep = load_data('final_jb_numbers_repair')
+
 
     avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
     best_pen_avg = np.mean(best_data_pen, axis=0).tolist()
@@ -121,7 +125,31 @@ def jb_numbers_test(plot = True):
 
 
 
+def load_data(filename):
+    best_data, avg_data = [], []
+    chunks_best, chunks_avg = [], []
+    run = -1
+    first = True
+    with open('results/' + filename, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if first:
+                first = False
+                continue
+            if row[0] != run:
+                if len(chunks_best) > 1:
+                    best_data.append(chunks_best)
+                    avg_data.append(chunks_avg)
+                chunks_best, chunks_avg = [], []
+                run = row[0]
+            chunks_best.append(float(row[2]))
+            chunks_avg.append(float(row[3]))
 
+    if len(chunks_best) > 1:
+        best_data.append(chunks_best)
+        avg_data.append(chunks_avg)
+
+    return best_data, avg_data
 
 if __name__ == '__main__':
     main()

@@ -108,7 +108,8 @@ class Knapsack():
                 # Get the best individual from the generation
                 best_indiv.append(self.best_pop(populacao)[1])
                 avg_indiv.append(np.mean([indiv[1] for indiv in populacao]))
-                #print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
+                if ng % 100 == 0:
+                    print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
 
                 
             total_best_indiv.append(best_indiv)
@@ -306,7 +307,7 @@ class Knapsack():
     
     def fitness_repair_value_to_profit(self, indiv):
         indiv = self.repair_value_to_profit(indiv)
-        
+
         return self.evaluate_linear(indiv)
     
     
@@ -349,11 +350,14 @@ class Knapsack():
         pheno = self.phenotype(indiv)
         pheno = [[i, w, v, float(v/w)] for i, w, v in pheno]
         pheno.sort(key= itemgetter(3))
-        
-        weight_indiv = 100 # get_weight(indiv, problem)
+
+        weight_indiv = self.get_weight(indiv)
         for index, weight, value, ratio in pheno:
             if weight_indiv <= capacity:
                 break
             indiv[index] = 0
             weight_indiv -= weight
         return indiv
+    
+    def get_weight(self, indiv):
+        return sum([weight for id,weight,value in self.phenotype(indiv)])

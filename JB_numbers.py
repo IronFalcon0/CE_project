@@ -84,7 +84,8 @@ class JB_numbers():
                 best_indiv.append(self.best_pop(populacao)[1])
 
                 avg_indiv.append(np.mean([indiv[1] for indiv in populacao]))
-                #print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1])
+                if ng % 100 == 0:
+                    print("Generation: ", ng, "Best: ", best_indiv[-1], "Avg: ", avg_indiv[-1], "Len: ", len(populacao))
 
                 
             total_best_indiv.append(best_indiv)

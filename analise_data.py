@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+import statsmodels.api as sm
+
 # ------------------------ UTILS ------------------------ 
 
 def flatten(l):
@@ -39,12 +41,16 @@ def mann_whitney(data1,data2):
     return st.mannwhitneyu(data1, data2)
 
 
+def qqplot(data):
+    data = np.array(data)
+    sm.qqplot(data, line='s')
+    plt.show()
 
 def main():
 
     if input("Test jb_numbers (y/n): ") == 'y':
-        data_penalize = pd.read_csv('results/28_04_2023_18_46_jb_numbers_penalize')
-        data_repair = pd.read_csv('results/28_04_2023_19_06_jb_numbers_repair')
+        data_penalize = pd.read_csv('results/final_jb_numbers_penalize')
+        data_repair = pd.read_csv('results/final_jb_numbers_repair')
 
         groups_penalize_avg = []
         groups_penalize_best = []
@@ -93,9 +99,12 @@ def main():
         print(mann_whitney(groups_penalize_best, groups_repair_best))
         print(mann_whitney(groups_penalize_avg, groups_repair_avg))
 
+        qqplot(groups_penalize_best)
+        qqplot(groups_repair_best)
+
     if input("Test knapsack (y/n): ") == 'y':
-        data_penalize = pd.read_csv('results/28_04_2023_15_48_knapsack_penalize')
-        data_repair = pd.read_csv('results/28_04_2023_17_14_knapsack_repair')
+        data_penalize = pd.read_csv('results/final_knapsack_penalize')
+        data_repair = pd.read_csv('results/final_knapsack_repair')
 
         groups_penalize_avg = []
         groups_penalize_best = []
