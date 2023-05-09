@@ -3,6 +3,7 @@ import numpy as np
 import math
 import copy
 import json
+import collections
 
 from operator import itemgetter
 import time
@@ -130,17 +131,50 @@ class SumOfSubsets():
         indiv_sets = [self.sets[i] for i in range(len(cromo)) if cromo[i] == 1]
         pheno = list(set(itertools.chain(*indiv_sets)))
 
-        return pheno, len(indiv_sets)
+        return pheno, indiv_sets
 
     # ----------------- Fitness functions -----------------
 
     def fitness_penalize(self, indiv):
-        pheno, size = self.pheno(indiv)
-        fitness = len(pheno) - (size * 2)
+        best_solution = len(set(itertools.chain(*self.sets)))
+        pheno, indiv_sets = self.pheno(indiv)
+
+        count_nums = sum(collections.Counter(list(itertools.chain(*indiv_sets))).keys())
+
+        # fitness = best_solution - number_missing_numbers - number_repeated_numbers - number_of_sets
+        fitness = best_solution - (best_solution - len(pheno)) - ((count_nums - len(pheno)) / best_solution) - len(indiv_sets)
         return fitness
     
 
     def fitness_repair(self, indiv):
+        best_solution = len(set(itertools.chain(*self.sets)))
+        pheno, indiv_sets = self.pheno(indiv)
+
+        if len(pheno) == best_solution:
+            count_nums = sum(collections.Counter(list(itertools.chain(*indiv_sets))).keys())
+            fitness = best_solution - ((count_nums - len(pheno)) / best_solution) - len(indiv_sets)
+            return fitness
+        
+        # ----------------- Repair -----------------
+        # some of the numbers are still not in the solution
+
+        current_set = pheno
+        for i in range(len(self.sets)):
+            if indiv[i] == 1:
+                pass
+
+            if not set(self.sets[i]).issubset(current_set):
+                indiv[i] = 1
+                current_set = list(set(current_set).union(self.sets[i]))
+
+        # recalculate fitness
+        pheno, indiv_sets = self.pheno(indiv)        
+
+        count_nums = sum(collections.Counter(list(itertools.chain(*indiv_sets))).keys())
+        fitness = best_solution - ((count_nums - len(pheno)) / best_solution) - len(indiv_sets)
+        return fitness
+
+
         # personlized calculation of fenotype, search for repeated sets and remove them
         indiv_sets = [self.sets[i] for i in range(len(indiv)) if indiv[i] == 1]
         

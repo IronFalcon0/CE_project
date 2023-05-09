@@ -46,20 +46,20 @@ def generate_set(range_start, range_end, number_of_sets, avg_size, filename):
 
 
 def sum_subset_test(plot = True):
-    generations = 1000
+    generations = 2000
     pop_size = 300
     prob_muta = 0.02
     prob_cross = 0.75
     tour_size = 5
     elite_percent = 0.05
-    runs = 30
+    runs = 1
 
-    range_start = 1
-    range_end = 2000
-    number_of_sets = 100
-    avg_size = 20
+    #range_start = 1
+    #range_end = 2000
+    #number_of_sets = 500
+    #avg_size = 100
     filename = 'sets.txt'
-    generate_set(range_start, range_end, number_of_sets, avg_size, filename)
+    #generate_set(range_start, range_end, number_of_sets, avg_size, filename)
     
     sumOfSubsets = SumOfSubsets(generations, pop_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, filename)
     
@@ -67,14 +67,15 @@ def sum_subset_test(plot = True):
     t1 = time.time()
 
     # mode: penalize
-    mode = 'penalize'
-    best_data_pen, avg_data_pen = sumOfSubsets.run(mode)
+    #mode = 'penalize'
+    #best_data_pen, avg_data_pen = sumOfSubsets.run(mode)
+    #return
     
-    data = prepare_data(best_data_pen, avg_data_pen)
+    #data = prepare_data(best_data_pen, avg_data_pen)
 
-    save_data(data, header=headers, extra_name='sum_of_subsets' + '_' + mode)
+    #save_data(data, header=headers, extra_name='sum_of_subsets' + '_' + mode)
 
-    t2 = time.time()
+    #t2 = time.time()
 
     # mode: repair
     mode = 'repair'
@@ -82,7 +83,7 @@ def sum_subset_test(plot = True):
     data = prepare_data(best_data_rep, avg_data_rep)
 
     save_data(data, header=headers, extra_name='sum_of_subsets' + '_' + mode)
-    
+    return
 
     avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
     best_pen_avg = np.mean(best_data_pen, axis=0).tolist()

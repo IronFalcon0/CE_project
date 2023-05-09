@@ -195,6 +195,7 @@ def save_data(data, header=[], extra_name='', path='results'):
     else:
         folder_name = datetime.now().strftime("%d_%m_%Y_%H_%M")
 
+    folder_name += str(random.randint())
     if os.path.exists(os.path.join(path, folder_name)):
         print("File exists: {}\nData not saved".format(folder_name))
         return
