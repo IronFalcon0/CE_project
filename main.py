@@ -52,7 +52,7 @@ def sum_subset_test(plot = True):
     prob_cross = 0.75
     tour_size = 5
     elite_percent = 0.05
-    runs = 1
+    runs = 3
 
     #range_start = 1
     #range_end = 2000
