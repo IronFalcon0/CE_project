@@ -137,7 +137,7 @@ def display_data(data):
     plt.show()  
     
 
-def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2, name):
+def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2, name, axis=None):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
     
     min_y_1 = min(min(avg_fitness1), min(best1)) - min(min(avg_fitness1), min(best1))*0.05
@@ -145,13 +145,38 @@ def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2
     min_y_2 = min(min(avg_fitness2), min(best2)) - min(min(avg_fitness2), min(best2))*0.05
     max_y_2 = max(max(avg_fitness2), max(best2)) + max(max(avg_fitness2), max(best2))*0.05
 
+    x1_min = 0
+    x2_min = 0
+    x1_max = len(best1)
+    x2_max = len(best2)
+
+    if axis is not None:
+        if axis['x1_min'] is not None:
+            x1_min = axis['x1_min']
+        if axis['x2_min'] is not None:
+            x2_min = axis['x2_min']
+        if axis['x1_max'] is not None:
+            x1_max = axis['x1_max']
+        if axis['x2_max'] is not None:
+            x2_max = axis['x2_max']
+        if axis['y1_min'] is not None:
+            min_y_1 = axis['y1_min']
+        if axis['y1_max'] is not None:
+            max_y_1 = axis['y1_max']
+        if axis['y2_min'] is not None:
+            min_y_2 = axis['y2_min']
+        if axis['y2_max'] is not None:
+            max_y_2 = axis['y2_max']
+        
+
+
     ax1.grid(True)
     ax1.axhline(c='black')
     ax1.axvline(c='black')
     ax1.plot(avg_fitness1, 'b', label='Avg')
     ax1.plot(best1, 'r', label='Best')
     ax1.set_ylim([min_y_1, max_y_1])
-    ax1.set_xlim([0, len(best1)])
+    ax1.set_xlim([x1_min, x1_max])
     ax1.set_title(title1)
     ax1.set_xlabel('Generation')
     ax1.set_ylabel('Fitness')
@@ -163,7 +188,7 @@ def plot_compare_graphs(avg_fitness1, best1, avg_fitness2, best2, title1, title2
     ax2.plot(avg_fitness2, 'b', label='Avg')
     ax2.plot(best2, 'r', label='Best')
     ax2.set_ylim([min_y_2, max_y_2])
-    ax2.set_xlim([0, len(best2)])
+    ax2.set_xlim([x2_min, x2_max])
     ax2.set_title(title2)
     ax2.set_xlabel('Generation')
     ax2.set_ylabel('Fitness')
