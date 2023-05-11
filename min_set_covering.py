@@ -10,7 +10,7 @@ import time
 import itertools
 
 
-class SumOfSubsets():
+class MinSetCovering():
     def __init__(self, generations, pop_size, prob_muta, prob_cross, runs, tour_size, crossover, elite_percent, sets_file):
         self.generations = generations
         self.pop_size = pop_size

@@ -2,7 +2,7 @@ from utils import *
 
 from knapsack import Knapsack
 from JB_numbers import JB_numbers
-from sum_of_subsets import SumOfSubsets
+from min_set_covering import MinSetCovering
 import time
 import numpy as np
 import json
@@ -11,18 +11,13 @@ import json
 headers = ["Run", "Generation", "Best_fit", "Avg_fit"]
 
 
-def main():
-    #knapsack = Knapsack()
-    #data = knapsack.run()
+def main():    
     
-    
-    #jb_numbers_test()
+    jb_numbers_test()
 
-    #knapsack_test()
+    knapsack_test()
 
-    sum_subset_test()
-
-    #redo_plots()
+    min_set_cov()
 
 
 def generate_set(range_start, range_end, number_of_sets, avg_size, filename):
@@ -45,45 +40,45 @@ def generate_set(range_start, range_end, number_of_sets, avg_size, filename):
         json.dump(sets, f)
 
 
-def sum_subset_test(plot = True):
+def min_set_cov(plot = True):
     generations = 2000
     pop_size = 300
     prob_muta = 0.02
     prob_cross = 0.75
     tour_size = 5
     elite_percent = 0.05
-    runs = 3
+    runs = 30
 
-    #range_start = 1
-    #range_end = 2000
-    #number_of_sets = 500
-    #avg_size = 100
+    range_start = 1
+    range_end = 2000
+    number_of_sets = 500
+    avg_size = 100
     filename = 'sets.txt'
-    #generate_set(range_start, range_end, number_of_sets, avg_size, filename)
+    generate_set(range_start, range_end, number_of_sets, avg_size, filename)
     
-    sumOfSubsets = SumOfSubsets(generations, pop_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, filename)
+    print("Minimum Set Covering test")
+    minSetCovering = MinSetCovering(generations, pop_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, filename)
     
     
     t1 = time.time()
 
     # mode: penalize
-    #mode = 'penalize'
-    #best_data_pen, avg_data_pen = sumOfSubsets.run(mode)
-    #return
+    mode = 'penalize'
+    best_data_pen, avg_data_pen = minSetCovering.run(mode)
     
-    #data = prepare_data(best_data_pen, avg_data_pen)
+    data = prepare_data(best_data_pen, avg_data_pen)
 
-    #save_data(data, header=headers, extra_name='sum_of_subsets' + '_' + mode)
+    save_data(data, header=headers, extra_name='min_set_cover' + '_' + mode)
 
-    #t2 = time.time()
+    t2 = time.time()
 
     # mode: repair
     mode = 'repair'
-    best_data_rep, avg_data_rep = sumOfSubsets.run(mode)
+    best_data_rep, avg_data_rep = minSetCovering.run(mode)
     data = prepare_data(best_data_rep, avg_data_rep)
 
-    save_data(data, header=headers, extra_name='sum_of_subsets' + '_' + mode)
-    return
+    save_data(data, header=headers, extra_name='min_set_cover' + '_' + mode)
+
 
     avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
     best_pen_avg = np.mean(best_data_pen, axis=0).tolist()
@@ -98,7 +93,7 @@ def sum_subset_test(plot = True):
     if plot:
         title_pen = 'Penalize method'
         title_rep = 'Repair method'
-        plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'sum_of_subsets')
+        plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'min_set_cover')
 
 
 def knapsack_test(plot = True):
@@ -112,7 +107,7 @@ def knapsack_test(plot = True):
     runs = 30
     max_value = 50
     
-    
+    print("Knapsack test")
     knapsack = Knapsack(generations, pop_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent, max_value, number_itens)
     
     t1 = time.time()
@@ -165,29 +160,28 @@ def jb_numbers_test(plot = True):
     runs = 30
     
 
+    print("JB Numbers test")
     jb_numbers = JB_numbers(generations, pop_size, cromo_size, prob_muta, prob_cross, runs, tour_size, two_points_cross, elite_percent)
     
     t1 = time.time()
 
     # mode: penalize
-    #mode = 'penalize'
-    #best_data_pen, avg_data_pen = jb_numbers.run(mode)
-    #data = prepare_data(best_data_pen, avg_data_pen)
+    mode = 'penalize'
+    best_data_pen, avg_data_pen = jb_numbers.run(mode)
+    data = prepare_data(best_data_pen, avg_data_pen)
 
-    #save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
+    save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
 
-    best_data_pen, avg_data_pen = load_data('final_jb_numbers_penalize')
 
 
     t2 = time.time()
 
     # mode: repair
     mode = 'repair'
-    #best_data_rep, avg_data_rep = jb_numbers.run(mode)
-    #data = prepare_data(best_data_rep, avg_data_rep)
+    best_data_rep, avg_data_rep = jb_numbers.run(mode)
+    data = prepare_data(best_data_rep, avg_data_rep)
 
-    #save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
-    best_data_rep, avg_data_rep = load_data('final_jb_numbers_repair')
+    save_data(data, header=headers, extra_name='jb_numbers' + '_' + mode)
 
 
     avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
@@ -207,66 +201,6 @@ def jb_numbers_test(plot = True):
 
 
 
-def redo_plots():
-    # jb_numbers
-    best_data_pen, avg_data_pen = load_data('final_jb_numbers_penalize')
-
-    best_data_rep, avg_data_rep = load_data('final_jb_numbers_repair')
-
-
-    avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
-    best_pen_avg = np.mean(best_data_pen, axis=0).tolist()
-    avg_rep_avg = np.mean(avg_data_rep, axis=0).tolist()
-    best_rep_avg = np.mean(best_data_rep, axis=0).tolist()
-
-
-    title_pen = 'Penalize method'
-    title_rep = 'Repair method'
-    plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'jb_numbers')
-
-    # knapsack
-    
-    best_data_pen, avg_data_pen = load_data('final_knapsack_penalize')
-
-    best_data_rep, avg_data_rep = load_data('final_knapsack_repair')
-
-
-    avg_pen_avg = np.mean(avg_data_pen, axis=0).tolist()
-    best_pen_avg = np.mean(best_data_pen, axis=0).tolist()
-    avg_rep_avg = np.mean(avg_data_rep, axis=0).tolist()
-    best_rep_avg = np.mean(best_data_rep, axis=0).tolist()
-
-
-    title_pen = 'Penalize method'
-    title_rep = 'Repair method'
-    plot_compare_graphs(avg_pen_avg, best_pen_avg, avg_rep_avg, best_rep_avg, title_pen, title_rep, 'knapsack')
-
-
-def load_data(filename):
-    best_data, avg_data = [], []
-    chunks_best, chunks_avg = [], []
-    run = -1
-    first = True
-    with open('results/' + filename, 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            if first:
-                first = False
-                continue
-            if row[0] != run:
-                if len(chunks_best) > 1:
-                    best_data.append(chunks_best)
-                    avg_data.append(chunks_avg)
-                chunks_best, chunks_avg = [], []
-                run = row[0]
-            chunks_best.append(float(row[2]))
-            chunks_avg.append(float(row[3]))
-
-    if len(chunks_best) > 1:
-        best_data.append(chunks_best)
-        avg_data.append(chunks_avg)
-
-    return best_data, avg_data
 
 if __name__ == '__main__':
     main()

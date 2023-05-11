@@ -64,18 +64,23 @@ def stats(file_pen, file_rep, out_name):
 
 
     # normality tests
-    print("Normality Shapiro-Wilk test, method penalize: ", test_normal_ks(groups_penalize_best))
-    print("Normality Shapiro-Wilk test, method repair: ", test_normal_ks(groups_repair_best))
+    print("Normality Shapiro-Wilk test, method penalize: ", test_normal_sw(groups_penalize_best))
+    print("Normality Shapiro-Wilk test, method repair: ", test_normal_sw(groups_repair_best))
 
     print("Repair fitness:", groups_repair_best)
     print("Penalize fitness:", groups_penalize_best)
 
     # plot histograms distributions
+    plt.clf()
     plt.hist(groups_penalize_best, bins=20)
+    plt.xlabel('Fitness')
+    plt.ylabel('Frequency')
     plt.savefig(f'plots/{out_name}_penalize.png')
     plt.clf()
     
     plt.hist(groups_repair_best, bins=20)
+    plt.xlabel('Fitness')
+    plt.ylabel('Frequency')
     plt.savefig(f'plots/{out_name}_repair.png')
     plt.clf()
     
